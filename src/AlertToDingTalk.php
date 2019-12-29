@@ -8,6 +8,16 @@ use Mockery\Exception;
 
 class AlertToDingTalk
 {
+    /**
+     *
+     * @param $token_name
+     * @param $msg
+     * @param bool $markdown
+     * @param string $title
+     * @param array $atMobiles
+     * @param bool $is_at_all
+     * @return array
+     */
     public function alertToDing($token_name, $msg,  $markdown = false, $title = '', $atMobiles =[], $is_at_all=false)
     {
         try {
@@ -18,7 +28,7 @@ class AlertToDingTalk
             }
             $handle = new TingTalk();
             $handle->setToken($token);
-
+            //markdown or text
             if ($markdown){
                 $handle->setMarkdown($title, $msg);
             }else{
@@ -30,7 +40,7 @@ class AlertToDingTalk
             }
             //at all
             $handle->setAtAll($is_at_all);
-
+            //发送
             $res = $handle->send();
             if ($res !== true) {
                 throw new Exception(json_encode($res));
