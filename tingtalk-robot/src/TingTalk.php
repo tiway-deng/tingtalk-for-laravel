@@ -9,9 +9,7 @@ class TingTalk
     const TEXT     = 'text';
     const MARKDOWN = 'markdown';
 
-    private $_host='https://oapi.dingtalk.com';
-
-    private $_uri='';
+    private $_url='https://oapi.dingtalk.com/robot/send?access_token=';
 
     private $_message = [];
 
@@ -21,7 +19,7 @@ class TingTalk
     }
 
     public function setToken($token) {
-        $this->_uri = '/robot/send?access_token='.$token;
+        $this->_url .= $token;
         return $this;
     }
 
@@ -39,12 +37,12 @@ class TingTalk
         //先定义是选择那一种发送格式
         $type = $this->_message['msgtype']??'';
         if (empty($type)){
-            $this->_error[] = '请先选择发送格式';
+            $this->_error[] = 'Please select the sending format';
         }
 
         //at手机号码不能为空
         if (count($phones)==0) {
-            $this->_error[] = '请填写＠手机号码';
+            $this->_error[] = 'Please fill in phone number which you at';
         }
         if ($type == self::MARKDOWN) {
             $markdown_text = $this->_message['markdown']['text'];
@@ -65,6 +63,9 @@ class TingTalk
 
     public function setText($text='') {
         $this->setTextType();
+        if (empty($text)) {
+            $this->_error[] = 'Please fill in the textMsg content';
+        }
         $this->_message['text'] = array('content'=>$text);
         return $this;
     }
@@ -73,13 +74,13 @@ class TingTalk
         $this->setMarkdownType();
 
         if (empty($title)) {
-            $this->_error[] = '请填写markdown的title';
+            $this->_error[] = 'Please fill in the title of markdown';
         }else{
             $this->_message['markdown']['title'] = $title;
         }
 
         if (empty($text)) {
-            $this->_error[] = '内容不能为空';
+            $this->_error[] = 'Please fill in the markdown content';
         }else{
             $this->_message['markdown']['text'] = $text;
         }
@@ -88,23 +89,30 @@ class TingTalk
     }
 
     public function send() {
-        if (count($this->_error) > 0) {
-            return $this->_error;
+        if (count($this->_error) > 0) return $this->_error;
+        //发送请求
+        $headers[] = "Content-Type: application/json;charset=utf-8";
+        $context = stream_context_create([
+            'http' => [
+                'header' => $headers,
+                'method' => 'POST',
+                'content' => json_encode($this->_message)
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ]);
+        $url = $this->_url;
+        $result = @file_get_contents($url, false, $context);
+        if ($result) {
+            $result = json_decode($result,true);
+            if(array_get($result,'errcode') !== 0) {
+                $error = array_get($result,'errmsg','Network Error');
+                $this->_error[] = $error;
+                return $this->_error;
+            }
         }
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->_host.$this->_uri);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 跳过服务器检查
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Content-Type: application/json;charset=utf-8'));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->_message));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        dd($ch);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $result = json_decode($result, true);
-        return $result;
+        return true;
     }
 }

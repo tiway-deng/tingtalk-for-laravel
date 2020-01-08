@@ -8,7 +8,7 @@ use Mockery\Exception;
 
 class AlertToDingTalk
 {
-    public function alertToDing($token_name, $msg,  $markdown = false, $title = 'title', $atMobiles =[], $is_at_all=false)
+    public function alertToDing($token_name, $msg,  $markdown = false, $title = '', $atMobiles =[], $is_at_all=false)
     {
         try {
             $token_group = config('tingtalk_robot.token_group');
@@ -31,11 +31,14 @@ class AlertToDingTalk
             //at all
             $handle->setAtAll($is_at_all);
 
-            $handle->send();
+            $res = $handle->send();
+            if ($res !== true) {
+                throw new Exception(json_encode($res));
+            }
 
             return ['status'=>true,'msg'=>'success'];
         } catch (\Exception $e) {
-            return ['status'=>false,'msg'=>'failure'];
+            return ['status'=>false,'msg'=>$e->getMessage()];
         }
     }
 }
