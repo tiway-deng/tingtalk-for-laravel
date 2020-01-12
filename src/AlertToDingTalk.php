@@ -3,9 +3,12 @@
 
 namespace Tiway\TingTalkRobot;
 
-
 use Mockery\Exception;
 
+/**
+ * Class AlertToDingTalk
+ * @package Tiway\TingTalkRobot
+ */
 class AlertToDingTalk
 {
     /**

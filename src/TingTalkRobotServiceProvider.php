@@ -4,9 +4,14 @@ namespace Tiway\TingTalkRobot;
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Class TingTalkRobotServiceProvider
+ * @package Tiway\TingTalkRobot
+ */
 class TingTalkRobotServiceProvider extends ServiceProvider
 {
-    protected $defer = true; // 延迟加载服务
+    protected $defer = true;
+
     /**
      * Bootstrap the application services.
      *
@@ -31,8 +36,11 @@ class TingTalkRobotServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * @return array
+     */
     public function provides() {
-        // 因为延迟加载 所以要定义 provides 函数 具体参考laravel 文档
+        // 因为延迟加载 所以要定义 provides
         return ['tingtalk'];
     }
 }

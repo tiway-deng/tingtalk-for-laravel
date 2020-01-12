@@ -3,36 +3,79 @@
 
 namespace Tiway\TingTalkRobot;
 
-
+/**
+ * Class TingTalk
+ * @package Tiway\TingTalkRobot
+ */
 class TingTalk
 {
+    /**
+     * 发送钉钉的格式 text
+     */
     const TEXT     = 'text';
+
+    /**
+     * 发送钉钉的格式 markdown两种
+     */
     const MARKDOWN = 'markdown';
 
+    /**
+     * 发送链接
+     * @var string
+     */
     private $_url='https://oapi.dingtalk.com/robot/send?access_token=';
 
+    /**
+     * 发送文本
+     * @var array
+     */
     private $_message = [];
 
+    /**
+     * 错误信息
+     * @var array
+     */
     private $_error = [];
 
+    /**
+     * TingTalk constructor.
+     */
     public function __construct() {
     }
 
+    /**
+     * 拼接token
+     * @param $token
+     * @return $this
+     */
     public function setToken($token) {
         $this->_url .= $token;
         return $this;
     }
 
+    /**
+     * 设置为text发送类型
+     * @return $this
+     */
     private function setTextType() {
         $this->_message['msgtype'] = self::TEXT;
         return $this;
     }
 
+    /**
+     * 设置为markdown发送类型
+     * @return $this
+     */
     private function setMarkdownType() {
         $this->_message['msgtype'] = self::MARKDOWN;
         return $this;
     }
 
+    /**
+     * 设置@的人的手机号码
+     * @param array $phones
+     * @return $this
+     */
     public function setAtArray(array $phones) {
         //先定义是选择那一种发送格式
         $type = $this->_message['msgtype']??'';
@@ -56,11 +99,21 @@ class TingTalk
         return $this;
     }
 
+    /**
+     * 是否@所有人
+     * @param bool $bool
+     * @return $this
+     */
     public function setAtAll(bool $bool) {
         $this->_message['at']['isAtAll'] = $bool;
         return $this;
     }
 
+    /**
+     * 设置文本信息
+     * @param string $text
+     * @return $this
+     */
     public function setText($text='') {
         $this->setTextType();
         if (empty($text)) {
@@ -70,6 +123,12 @@ class TingTalk
         return $this;
     }
 
+    /**
+     * 设置markdown文本
+     * @param string $title
+     * @param string $text
+     * @return $this
+     */
     public function setMarkdown($title = '', $text='') {
         $this->setMarkdownType();
 
@@ -88,6 +147,10 @@ class TingTalk
         return $this;
     }
 
+    /**
+     * http 请求
+     * @return array|bool
+     */
     public function send() {
         if (count($this->_error) > 0) return $this->_error;
         //发送请求
