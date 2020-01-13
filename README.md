@@ -45,3 +45,5 @@ Artisan::command('tiway:test_ting', function () {
 });
 ~~~
 
+更多详细信息 [企业钉钉群发送信息轮子](https://blog.csdn.net/qq_39941141/article/details/103962767).
+
